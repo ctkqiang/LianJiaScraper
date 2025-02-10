@@ -25,6 +25,15 @@
 - 前端：Thymeleaf + Tailwind CSS
 - 数据导出：Apache POI
 
+## API 接口说明
+
+- 测试接口：GET `/api/test`
+- 获取房源数据：GET `/api/house`
+- 获取房源JSON数据：GET `/api/house/json/{province}`
+- 可视化展示：GET `/api/show`
+- 导出 CSV：GET `/api/house/export/csv`
+- 导出 Excel：GET `/api/house/export/excel`
+
 ## 快速开始
 
 ### 环境要求
@@ -61,9 +70,12 @@ java -jar target/lianjiascraper-0.0.1-SNAPSHOT.jar
 ### 使用说明
 
 1. 访问 Web 界面：http://localhost:8080
-2. 在搜索框输入城市名称（例如：北京）
-3. 点击搜索按钮获取房源数据
-4. 可以点击导出按钮将数据导出为 Excel 或 CSV 格式
+2. API 测试：http://localhost:8080/api/test
+3. 数据可视化：http://localhost:8080/api/show
+4. 获取房源数据：http://localhost:8080/api/house
+5. JSON格式数据：http://localhost:8080/api/house/json/{province}
+6. 导出CSV：http://localhost:8080/api/house/export/csv
+7. 导出Excel：http://localhost:8080/api/house/export/excel
 
 ### 演示界面
 
