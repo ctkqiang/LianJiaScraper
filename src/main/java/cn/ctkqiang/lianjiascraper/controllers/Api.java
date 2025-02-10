@@ -49,8 +49,9 @@ public class Api {
         return ResponseEntity.ok("API is working!");
     }
 
-    @GetMapping("/house/export/csv") // Remove the duplicate /api/
+    @GetMapping("/house/export/csv")
     public ResponseEntity<Resource> exportCsv(@RequestParam(defaultValue = "rs北京") String province) {
+
         try {
             List<House> houses = scrapper.scrapeLianjia(province);
             StringBuilder csv = new StringBuilder();
