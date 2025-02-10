@@ -69,6 +69,10 @@ public class LianjiascraperApplication implements WebMvcConfigurer {
 			logger.info("API endpoints:");
 			logger.info("- http://localhost:8080/api/test");
 			logger.info("- http://localhost:8080/api/house");
+			logger.info("- http://localhost:8080/api/house/json/{province}");
+			logger.info("- http://localhost:8080/api/show");
+			logger.info("- http://localhost:8080/api/house/export/csv");
+			logger.info("- http://localhost:8080/api/house/export/excel");
 		};
 	}
 }

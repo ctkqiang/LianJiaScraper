@@ -3,8 +3,10 @@ package cn.ctkqiang.lianjiascraper.controllers;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.http.ResponseEntity;
 
 import org.springframework.core.io.ByteArrayResource;
@@ -18,7 +20,9 @@ import java.io.ByteArrayOutputStream;
 import java.nio.charset.StandardCharsets;
 
 import java.io.IOException;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import cn.ctkqiang.lianjiascraper.models.House;
 
@@ -41,6 +45,19 @@ public class Api {
         } catch (IOException e) {
             model.addAttribute("error", e.getMessage());
             return "index";
+        }
+    }
+
+    @GetMapping("/show")
+    public String showVisualization(@RequestParam(defaultValue = "rs北京") String province, Model model) {
+        try {
+            List<House> houses = scrapper.scrapeLianjia(province);
+            model.addAttribute("houses", houses);
+            model.addAttribute("province", province);
+            return "show";
+        } catch (IOException e) {
+            model.addAttribute("error", e.getMessage());
+            return "show";
         }
     }
 
@@ -83,24 +100,22 @@ public class Api {
             XSSFWorkbook workbook = new XSSFWorkbook();
             XSSFSheet sheet = workbook.createSheet("房源数据");
 
-            // Create header row
             Row headerRow = sheet.createRow(0);
             headerRow.createCell(0).setCellValue("标题");
             headerRow.createCell(1).setCellValue("价格");
             headerRow.createCell(2).setCellValue("位置");
             headerRow.createCell(3).setCellValue("链接");
 
-            // Create data rows
             int rowNum = 1;
             for (House house : houses) {
                 Row row = sheet.createRow(rowNum++);
+
                 row.createCell(0).setCellValue(house.getTitle());
                 row.createCell(1).setCellValue(house.getPrice());
                 row.createCell(2).setCellValue(house.getLocation());
                 row.createCell(3).setCellValue(house.getUrl());
             }
 
-            // Auto-size columns
             for (int i = 0; i < 4; i++) {
                 sheet.autoSizeColumn(i);
             }
@@ -120,4 +135,18 @@ public class Api {
             return ResponseEntity.internalServerError().build();
         }
     }
+
+    @GetMapping("/house/json")
+    @ResponseBody
+    public ResponseEntity<?> getHousesJson(@PathVariable(required = false) String province) {
+        try {
+            String searchProvince = province != null ? province : "rs北京";
+            List<House> houses = scrapper.scrapeLianjia(searchProvince);
+            return ResponseEntity.ok(houses);
+        } catch (IOException e) {
+            return ResponseEntity.internalServerError()
+                    .body(Map.of("error", e.getMessage()));
+        }
+    }
+
 }

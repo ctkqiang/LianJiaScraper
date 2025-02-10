@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+    <meta charset="UTF-8">
+    <title>房源数据可视化</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        .chart-container {
+            width: 80%;
+            margin: 20px auto;
+        }
+        .chart-wrapper {
+            margin-bottom: 40px;
+        }
+    </style>
+</head>
+<body>
+    <div class="chart-container">
+        <div class="chart-wrapper">
+            <h2>价格分布图</h2>
+            <canvas id="priceChart"></canvas>
+        </div>
+        <div class="chart-wrapper">
+            <h2>面积分布图</h2>
+            <canvas id="areaChart"></canvas>
+        </div>
+        <div class="chart-wrapper">
+            <h2>价格-面积散点图</h2>
+            <canvas id="scatterChart"></canvas>
+        </div>
+    </div>
+
+    <script>
+        async function fetchData() {
+            // 修改 API 路径，添加省份参数
+            const response = await fetch('http://localhost:8080/api/house/json/北京');
+            return await response.json();
+        }
+        
+        function extractPrice(priceStr) {
+            return parseInt(priceStr.replace(' 元/月', ''));
+        }
+
+        function extractArea(locationStr) {
+            // 修改正则表达式以更准确地匹配面积
+            const match = locationStr.match(/(\d+\.?\d*)㎡/);
+            return match ? parseFloat(match[1]) : 0;  // 使用捕获组 1 来获取数字
+        }
+
+        async function initCharts() {
+            const data = await fetchData();
+            
+            const prices = data.map(item => extractPrice(item.price));
+            const areas = data.map(item => extractArea(item.location));
+
+            // 价格分布图
+            new Chart(document.getElementById('priceChart'), {
+                type: 'bar',
+                data: {
+                    labels: ['0-2000', '2000-4000', '4000-6000', '6000-8000', '8000+'],
+                    datasets: [{
+                        label: '房源数量',
+                        data: [
+                            prices.filter(p => p < 2000).length,
+                            prices.filter(p => p >= 2000 && p < 4000).length,
+                            prices.filter(p => p >= 4000 && p < 6000).length,
+                            prices.filter(p => p >= 6000 && p < 8000).length,
+                            prices.filter(p => p >= 8000).length
+                        ],
+                        backgroundColor: 'rgba(54, 162, 235, 0.5)'
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            title: {
+                                display: true,
+                                text: '房源数量'
+                            }
+                        },
+                        x: {
+                            title: {
+                                display: true,
+                                text: '价格区间（元/月）'
+                            }
+                        }
+                    }
+                }
+            });
+
+            // 面积分布图
+            new Chart(document.getElementById('areaChart'), {
+                type: 'bar',
+                data: {
+                    labels: ['0-20', '20-40', '40-60', '60-80', '80+'],
+                    datasets: [{
+                        label: '房源数量',
+                        data: [
+                            areas.filter(a => a < 20).length,
+                            areas.filter(a => a >= 20 && a < 40).length,
+                            areas.filter(a => a >= 40 && a < 60).length,
+                            areas.filter(a => a >= 60 && a < 80).length,
+                            areas.filter(a => a >= 80).length
+                        ],
+                        backgroundColor: 'rgba(255, 99, 132, 0.5)'
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            title: {
+                                display: true,
+                                text: '房源数量'
+                            }
+                        },
+                        x: {
+                            title: {
+                                display: true,
+                                text: '面积区间（平方米）'
+                            }
+                        }
+                    }
+                }
+            });
+
+            // 价格-面积散点图
+            new Chart(document.getElementById('scatterChart'), {
+                type: 'scatter',
+                data: {
+                    datasets: [{
+                        label: '价格-面积关系',
+                        data: data.map(item => ({
+                            x: extractArea(item.location),
+                            y: extractPrice(item.price)
+                        })),
+                        backgroundColor: 'rgba(75, 192, 192, 0.5)'
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    scales: {
+                        x: {
+                            title: {
+                                display: true,
+                                text: '面积（平方米）'
+                            }
+                        },
+                        y: {
+                            title: {
+                                display: true,
+                                text: '价格（元/月）'
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+        initCharts();
+    </script>
+</body>
+</html>
