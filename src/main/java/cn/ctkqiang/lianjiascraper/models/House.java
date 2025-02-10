@@ -1,5 +1,19 @@
 package cn.ctkqiang.lianjiascraper.models;
 
+/**
+ * 房源信息数据模型类
+ * 
+ * 用于存储和传输房源相关信息，包括：
+ * - 房源标题
+ * - 租金价格
+ * - 房源位置
+ * - 图片URL
+ * - 详情页URL
+ * 
+ * @author 钟智强
+ * @version 1.0
+ */
+
 public class House {
     private String title;
     private String price;

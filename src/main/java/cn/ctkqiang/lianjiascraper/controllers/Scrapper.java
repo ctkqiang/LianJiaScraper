@@ -14,16 +14,28 @@ import cn.ctkqiang.lianjiascraper.models.House;
 
 /**
  * 链家网站爬虫核心类
- * 负责从链家网站抓取房源数据
+ * 
+ * 负责从链家网站抓取房源数据，包括房源标题、价格、位置等信息。
+ * 使用JSoup库进行HTML解析和数据提取。
+ * 
+ * 主要功能：
+ * 1. 模拟浏览器请求
+ * 2. 解析房源列表页面
+ * 3. 提取房源详细信息
+ * 4. 数据清洗和格式化
+ * 
+ * @author 钟智强
+ * @version 1.0
  */
 public class Scrapper {
-    // 链家租房基础URL
-    private static final String URL = "https://bj.lianjia.com/zufang/";
+    /** 链家网站基础URL */
+    private static final String URL = "https://bj.lianjia.com/zufang/rs";
 
     /**
-     * 爬取链家网站房源数据
-     * @param Province 城市/地区名称
-     * @return 房源列表
+     * 爬取指定城市的房源数据
+     * 
+     * @param Province 城市名称，不能为空
+     * @return 房源数据列表
      * @throws IOException 网络请求异常
      */
     public List<House> scrapeLianjia(@NonNull String Province) throws IOException {

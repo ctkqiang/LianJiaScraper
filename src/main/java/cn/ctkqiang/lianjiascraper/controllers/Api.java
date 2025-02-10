@@ -20,21 +20,48 @@ import java.io.ByteArrayOutputStream;
 import java.nio.charset.StandardCharsets;
 
 import java.io.IOException;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 import cn.ctkqiang.lianjiascraper.models.House;
 
+/**
+ * 链家房源数据API控制器
+ * 
+ * 提供RESTful API接口，用于获取和导出房源数据。
+ * 支持多种数据格式：JSON、CSV、Excel
+ * 
+ * 主要功能：
+ * 1. 获取房源列表数据
+ * 2. 数据可视化展示
+ * 3. 导出CSV格式数据
+ * 4. 导出Excel格式数据
+ * 5. 提供JSON格式数据接口
+ * 
+ * @author 钟智强
+ * @version 1.0
+ */
 @Controller
 @RequestMapping("/api")
 public class Api {
+    /** 爬虫实例 */
     private final Scrapper scrapper;
 
+    /**
+     * 构造函数，初始化爬虫实例
+     */
     public Api() {
         this.scrapper = new Scrapper();
     }
 
+    /**
+     * 获取房源列表
+     * 支持按城市筛选数据
+     * 
+     * @param province 城市名称，默认为"rs北京"
+     * @param model    Spring MVC模型对象
+     * @return 视图名称
+     */
     @GetMapping("/house")
     public String getHouses(@RequestParam(defaultValue = "rs北京") String province, Model model) {
         try {
@@ -48,6 +75,14 @@ public class Api {
         }
     }
 
+    /**
+     * 数据可视化展示接口
+     * 提供图表化展示房源数据
+     * 
+     * @param province 城市名称，默认为"rs北京"
+     * @param model    Spring MVC模型对象
+     * @return 可视化视图名称
+     */
     @GetMapping("/show")
     public String showVisualization(@RequestParam(defaultValue = "rs北京") String province, Model model) {
         try {
@@ -61,11 +96,24 @@ public class Api {
         }
     }
 
+    /**
+     * API测试接口
+     * 用于验证API服务是否正常运行
+     * 
+     * @return API状态响应
+     */
     @GetMapping("/test")
     public ResponseEntity<String> test() {
         return ResponseEntity.ok("API is working!");
     }
 
+    /**
+     * 导出CSV格式数据
+     * 将房源数据导出为CSV文件格式
+     * 
+     * @param province 城市名称，默认为"rs北京"
+     * @return CSV文件下载响应
+     */
     @GetMapping("/house/export/csv")
     public ResponseEntity<Resource> exportCsv(@RequestParam(defaultValue = "rs北京") String province) {
 
@@ -93,7 +141,14 @@ public class Api {
         }
     }
 
-    @GetMapping("/api/house/export/excel")
+    /**
+     * 导出Excel格式数据
+     * 将房源数据导出为Excel文件格式
+     * 
+     * @param province 城市名称，默认为"rs北京"
+     * @return Excel文件下载响应
+     */
+    @GetMapping("/house/export/excel")
     public ResponseEntity<Resource> exportExcel(@RequestParam(defaultValue = "rs北京") String province) {
         try {
             List<House> houses = scrapper.scrapeLianjia(province);
@@ -136,9 +191,16 @@ public class Api {
         }
     }
 
-    @GetMapping("/house/json/{province}") // Changed from "/house/json"
+    /**
+     * 获取JSON格式数据
+     * 提供房源数据的JSON格式接口
+     * 
+     * @param province 城市名称
+     * @return JSON格式的房源数据
+     */
+    @GetMapping("/house/json/{province}")
     @ResponseBody
-    public ResponseEntity<?> getHousesJson(@PathVariable String province) { // Removed required=false
+    public ResponseEntity<?> getHousesJson(@PathVariable String province) {
         try {
             String searchProvince = province != null ? province : "rs北京";
             List<House> houses = scrapper.scrapeLianjia(searchProvince);
@@ -148,5 +210,4 @@ public class Api {
                     .body(Map.of("error", e.getMessage()));
         }
     }
-
 }
