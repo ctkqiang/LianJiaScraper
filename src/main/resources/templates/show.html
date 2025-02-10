@@ -1,57 +1,196 @@
 <!DOCTYPE html>
-<html lang="zh">
+<html lang="zh" xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
-    <title>房源数据可视化</title>
+    <title>房源数据分析仪表板</title>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
         .chart-container {
-            width: 80%;
+            width: 90%;
             margin: 20px auto;
         }
         .chart-wrapper {
             margin-bottom: 40px;
+            padding: 24px;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+        .stat-card {
+            background: white;
+            padding: 20px;
+            border-radius: 12px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+            text-align: center;
+        }
+        .chart-title {
+            display: flex;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+        .chart-title i {
+            margin-right: 10px;
+            color: #4B5563;
         }
     </style>
 </head>
-<body>
+<body class="bg-gray-50 min-h-screen">
+    <!-- Navigation Bar -->
+    <nav class="bg-white shadow-lg mb-8">
+        <div class="max-w-7xl mx-auto p-6">
+            <div class="flex flex-col md:flex-row md:items-center md:justify-between space-y-4 md:space-y-0">
+                <div class="flex-1">
+                    <div class="flex gap-4 max-w-xl">
+                        <input type="text" 
+                               id="provinceInput"
+                               placeholder="输入城市..." 
+                               class="flex-1 px-4 py-3 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                        <button onclick="updateCharts()" 
+                                class="px-8 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition duration-200 flex-shrink-0">
+                            <i class="fas fa-search mr-2"></i>分析
+                        </button>
+                    </div>
+                </div>
+                <div class="flex items-center space-x-4">
+                    <a href="/api/house" 
+                       class="w-32 py-3 bg-green-600 text-white text-center rounded-lg hover:bg-green-700 transition duration-200">
+                        <i class="fas fa-table mr-2"></i>列表视图
+                    </a>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Stats Summary -->
     <div class="chart-container">
+        <div class="stats-grid">
+            <div class="stat-card" id="avgPrice">
+                <i class="fas fa-yuan-sign text-2xl text-blue-500 mb-2"></i>
+                <h3 class="text-gray-500 text-sm">平均价格</h3>
+                <p class="text-2xl font-bold text-gray-800">计算中...</p>
+            </div>
+            <div class="stat-card" id="avgArea">
+                <i class="fas fa-vector-square text-2xl text-green-500 mb-2"></i>
+                <h3 class="text-gray-500 text-sm">平均面积</h3>
+                <p class="text-2xl font-bold text-gray-800">计算中...</p>
+            </div>
+            <div class="stat-card" id="totalListings">
+                <i class="fas fa-home text-2xl text-purple-500 mb-2"></i>
+                <h3 class="text-gray-500 text-sm">房源总数</h3>
+                <p class="text-2xl font-bold text-gray-800">计算中...</p>
+            </div>
+            <div class="stat-card" id="pricePerSqm">
+                <i class="fas fa-calculator text-2xl text-red-500 mb-2"></i>
+                <h3 class="text-gray-500 text-sm">均价/平方米</h3>
+                <p class="text-2xl font-bold text-gray-800">计算中...</p>
+            </div>
+        </div>
+
         <div class="chart-wrapper">
-            <h2>价格分布图</h2>
+            <div class="chart-title">
+                <i class="fas fa-chart-bar text-xl"></i>
+                <h2 class="text-xl font-bold">价格分布分析</h2>
+            </div>
             <canvas id="priceChart"></canvas>
         </div>
         <div class="chart-wrapper">
-            <h2>面积分布图</h2>
+            <div class="chart-title">
+                <i class="fas fa-chart-area text-xl"></i>
+                <h2 class="text-xl font-bold">面积分布分析</h2>
+            </div>
             <canvas id="areaChart"></canvas>
         </div>
         <div class="chart-wrapper">
-            <h2>价格-面积散点图</h2>
+            <div class="chart-title">
+                <i class="fas fa-chart-scatter text-xl"></i>
+                <h2 class="text-xl font-bold">价格-面积相关性分析</h2>
+            </div>
             <canvas id="scatterChart"></canvas>
         </div>
     </div>
 
     <script>
-        async function fetchData() {
-            // 修改 API 路径，添加省份参数
-            const response = await fetch('http://localhost:8080/api/house/json/北京');
-            return await response.json();
+        async function fetchData(province = '北京') {
+            try {
+                const response = await fetch(`http://localhost:8080/api/house/json/${province}`);
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                const data = await response.json();
+                console.log('原始数据:', data);
+                if (!data || data.length === 0) {
+                    throw new Error('没有数据');
+                }
+                return data;
+            } catch (error) {
+                console.error('获取数据失败:', error);
+
+                return [];
+            }
         }
         
         function extractPrice(priceStr) {
-            return parseInt(priceStr.replace(' 元/月', ''));
+            const matches = priceStr.match(/(\d+)(?:-(\d+))?\s*元\/月/);
+            if (!matches) return 0;
+            // 如果是价格范围，取平均值
+            return matches[2] ? 
+                Math.floor((parseInt(matches[1]) + parseInt(matches[2])) / 2) : 
+                parseInt(matches[1]);
         }
 
         function extractArea(locationStr) {
-            // 修改正则表达式以更准确地匹配面积
-            const match = locationStr.match(/(\d+\.?\d*)㎡/);
-            return match ? parseFloat(match[1]) : 0;  // 使用捕获组 1 来获取数字
+            const matches = locationStr.match(/(\d+\.?\d*)(?:-(\d+\.?\d*))?㎡/);
+            if (!matches) return 0;
+            // 如果是面积范围，取平均值
+            return matches[2] ? 
+                (parseFloat(matches[1]) + parseFloat(matches[2])) / 2 : 
+                parseFloat(matches[1]);
         }
 
-        async function initCharts() {
-            const data = await fetchData();
-            
+        function updateStats(data) {
             const prices = data.map(item => extractPrice(item.price));
             const areas = data.map(item => extractArea(item.location));
+            
+            const avgPrice = prices.reduce((a, b) => a + b, 0) / prices.length;
+            const avgArea = areas.reduce((a, b) => a + b, 0) / areas.length;
+            const pricePerSqm = avgPrice / avgArea;
+
+            document.querySelector('#avgPrice p').textContent = `¥${avgPrice.toFixed(0)}`;
+            document.querySelector('#avgArea p').textContent = `${avgArea.toFixed(1)}㎡`;
+            document.querySelector('#totalListings p').textContent = data.length;
+            document.querySelector('#pricePerSqm p').textContent = `¥${pricePerSqm.toFixed(0)}/㎡`;
+        }
+
+        async function updateCharts() {
+            const province = document.getElementById('provinceInput').value || '北京';
+            try {
+                const data = await fetchData(province);
+                if (!data || data.length === 0) {
+                    alert('没有找到相关数据');
+                    return;
+                }
+                updateStats(data);
+                initChartsWithData(data);
+            } catch (error) {
+                console.error('获取数据失败:', error);
+                alert('获取数据失败，请稍后重试');
+            }
+        }
+
+        function initChartsWithData(data) {
+            const prices = data.map(item => extractPrice(item.price));
+            const areas = data.map(item => extractArea(item.location));
+            
+            console.log('处理后的价格:', prices); // 调试日志
+            console.log('处理后的面积:', areas); // 调试日志
 
             // 价格分布图
             new Chart(document.getElementById('priceChart'), {
@@ -160,7 +299,8 @@
             });
         }
 
-        initCharts();
+        // Initial load
+        updateCharts();
     </script>
 </body>
 </html>

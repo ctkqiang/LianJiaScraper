@@ -84,6 +84,14 @@ java -jar target/lianjiascraper-0.0.1-SNAPSHOT.jar
     <p align="center" style="margin-top: 8px; color: #666;">
         链家房源数据爬虫系统界面展示
     </p>
+    
+<img src="./demo/截屏2025-02-10 下午7.26.10.png" alt="演示界面" width="100%" style="max-width: 800px; border-radius: 8px; box-shadow: 0 4px 8px rgba(0,0,0,0.1);" />
+    
+<img src="./demo/截屏2025-02-10 下午7.26.22.png" alt="演示界面" width="100%" style="max-width: 800px; border-radius: 8px; box-shadow: 0 4px 8px rgba(0,0,0,0.1);" />
+
+<img src="./demo/截屏2025-02-10 下午7.26.33.png" alt="演示界面" width="100%" style="max-width: 800px; border-radius: 8px; box-shadow: 0 4px 8px rgba(0,0,0,0.1);" />
+
+
 </div>
 
 ## API 接口说明
@@ -91,6 +99,8 @@ java -jar target/lianjiascraper-0.0.1-SNAPSHOT.jar
 - 获取房源数据：GET `/api/house?province={城市名}`
 - 导出 CSV：GET `/api/house/export/csv?province={城市名}`
 - 导出 Excel：GET `/api/house/export/excel?province={城市名}`
+- 数据可视化：GET `/api/show?province={城市名}`
+- 获取JSON数据：GET `/api/house/json/{province}`
 - 测试接口：GET `/api/test`
 
 ## 项目结构

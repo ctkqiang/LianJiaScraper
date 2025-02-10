@@ -136,9 +136,9 @@ public class Api {
         }
     }
 
-    @GetMapping("/house/json")
+    @GetMapping("/house/json/{province}") // Changed from "/house/json"
     @ResponseBody
-    public ResponseEntity<?> getHousesJson(@PathVariable(required = false) String province) {
+    public ResponseEntity<?> getHousesJson(@PathVariable String province) { // Removed required=false
         try {
             String searchProvince = province != null ? province : "rs北京";
             List<House> houses = scrapper.scrapeLianjia(searchProvince);
