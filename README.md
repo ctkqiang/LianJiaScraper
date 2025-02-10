@@ -62,9 +62,14 @@ mvn clean package
 ```
 
 4. 运行项目
-
+方式一：直接运行 JAR 文件
 ```bash
 java -jar target/lianjiascraper-0.0.1-SNAPSHOT.jar
+```
+方式二：使用 Maven Spring Boot 插件运行
+
+```bash
+mvn spring-boot:run
 ```
 
 ### 使用说明
