@@ -26,14 +26,14 @@
 - 数据导出：Apache POI
 
 ## API 接口说明
-
+```bash
 - 测试接口：GET `/api/test`
 - 获取房源数据：GET `/api/house`
 - 获取房源JSON数据：GET `/api/house/json/{province}`
 - 可视化展示：GET `/api/show`
 - 导出 CSV：GET `/api/house/export/csv`
 - 导出 Excel：GET `/api/house/export/excel`
-
+```
 ## 快速开始
 
 ### 环境要求
