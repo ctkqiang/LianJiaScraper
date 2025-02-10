@@ -89,6 +89,9 @@ mvn spring-boot:run
     <p align="center" style="margin-top: 8px; color: #666;">
         链家房源数据爬虫系统界面展示
     </p>
+
+<img src="./demo/截屏2025-02-10 下午10.01.48.png" alt="演示界面" width="100%" style="max-width: 800px; border-radius: 8px; box-shadow: 0 4px 8px rgba(0,0,0,0.1);" />
+
     
 <img src="./demo/截屏2025-02-10 下午7.26.10.png" alt="演示界面" width="100%" style="max-width: 800px; border-radius: 8px; box-shadow: 0 4px 8px rgba(0,0,0,0.1);" />
     
