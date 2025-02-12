@@ -1,15 +1,9 @@
-FROM openjdk:11-jdk-slim
+FROM maven:3.8-openjdk-11-slim AS builder
 
-WORKDIR /app
-
-COPY mvnw .
-COPY .mvn .mvn
-COPY pom.xml .
-COPY src src
-
-RUN chmod +x ./mvnw
-RUN ./mvnw package -DskipTests
+FROM openjdk:25-jdk-slim
 
 EXPOSE 8080
 
-ENTRYPOINT ["java", "-jar", "target/lianjiascraper-0.0.1-SNAPSHOT.jar"]
+ENV SPRING_PROFILES_ACTIVE=prod
+
+ENTRYPOINT ["mvn", "spring-boot:run"]
