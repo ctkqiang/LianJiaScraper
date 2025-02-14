@@ -151,17 +151,18 @@ public class Api {
     @GetMapping("/house/export/excel")
     public ResponseEntity<Resource> exportExcel(@RequestParam(defaultValue = "rs北京") String province) {
         try {
+            int rowNum = 1;
+
             List<House> houses = scrapper.scrapeLianjia(province);
             XSSFWorkbook workbook = new XSSFWorkbook();
             XSSFSheet sheet = workbook.createSheet("房源数据");
-
             Row headerRow = sheet.createRow(0);
+
             headerRow.createCell(0).setCellValue("标题");
             headerRow.createCell(1).setCellValue("价格");
             headerRow.createCell(2).setCellValue("位置");
             headerRow.createCell(3).setCellValue("链接");
 
-            int rowNum = 1;
             for (House house : houses) {
                 Row row = sheet.createRow(rowNum++);
 
@@ -189,6 +190,7 @@ public class Api {
         } catch (IOException e) {
             return ResponseEntity.internalServerError().build();
         }
+
     }
 
     /**
